@@ -1,0 +1,19 @@
+{
+  "name": "yiche/workflow",
+  "description": "工作流",
+  "type": "no",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "shiwh",
+      "email": "shi_wenhu@qq.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "Yiche\\Workflow\\": "src/"
+    }
+  },
+  "require": {}
+}
