@@ -194,7 +194,7 @@ class Workflow extends ServiceProvider
     {
         switch ($node['node_type']) {
             case 'event':              //事件：包括空开始事件、空结束事件、终止结束事件
-                $this->_run_event($processInstanceId, $node, $data);
+                $this->_runEvent($processInstanceId, $node, $data);
                 break;
             case 'gateway':             //网关：包括唯一网关、并行网关、包含网关
                 return $this->_runGateway($processInstanceId, $node, $data);
@@ -203,7 +203,7 @@ class Workflow extends ServiceProvider
                 return $this->_runTask($processInstanceId, $node, $data);
                 break;
             case 'end' :
-                $this->_run_end($processInstanceId, $node, $data);
+                $this->_runEnd($processInstanceId, $node, $data);
             default:
                 break;
         }
@@ -242,6 +242,23 @@ class Workflow extends ServiceProvider
             }
         }
         return $res;
+    }
+
+    //结束流程
+    private function _runEnd($processInstanceId, $node, $data)
+    {
+        ProcessNodeInstance::where('id', $processInstanceId)->update([
+            'is_stoped' => 1,
+            'stop_at'   => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    private function _runEvent($processInstanceId, $node, $data)
+    {
+//        $next = $this->nextNodes($processInstanceId, $node->id);
+//        foreach ($next as $k => $v) {
+//            $this->run($processInstanceId, $this->detail($v->item_id), $data);
+//        }
     }
 
     /**

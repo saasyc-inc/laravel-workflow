@@ -41,15 +41,15 @@ class WorkflowController extends Controller
     {
         $workflow = new Workflow(1);
 
-//        $workflow->create();
-//        return $workflow->start(21);
-//        return $workflow->complateAndToNextNode(25, [
+//        return $workflow->create();
+//        return $workflow->start(22);
+//        return $workflow->complateAndToNextNode(28, [
 //            'need_home_visit' => 1
 //        ]);
-        return $workflow->complateAndToNextNode(26, [
-            'need_home_visit' => 1,
-            'visit_status'    => 1,
-        ]);
+//        return $workflow->complateAndToNextNode(26, [
+//            'need_home_visit' => 1,
+//            'visit_status'    => 1,
+//        ]);
 
     }
 }
