@@ -31,9 +31,9 @@
     <g/>
 </svg>
 </body>
-<script src="/js/workflow/jquery-latest.js"></script>
-<script src="/js/workflow/d3.v3.min.js"></script>
-<script src="/js/workflow/dagre-d3.min.js"></script>
+<script src="{{asset('vendor/yiche/workflow/js/jquery-latest.js')}}"></script>
+<script src="{{asset('vendor/yiche/workflow/js/d3.v3.min.js')}}"></script>
+<script src="{{asset('vendor/yiche/workflow/js/dagre-d3.min.js')}}"></script>
 <script>
     // Create a new directed graph
     var g = new dagreD3.graphlib.Graph().setGraph({});
