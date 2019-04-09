@@ -1,6 +1,6 @@
-# 流程引擎使用
+# 流程引擎使用V1
 ## 安装
-
+ - php artisan vendor:publish --tag=workflow --force
 ## 使用
 ### 建立独立流程
 - 初始化流程线`process`

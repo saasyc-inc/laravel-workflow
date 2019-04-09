@@ -15,5 +15,12 @@
       "Yiche\\Workflow\\": "src/"
     }
   },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Yiche\\Workflow\\WorkflowServiceProvider"
+      ]
+    }
+  },
   "require": {}
 }

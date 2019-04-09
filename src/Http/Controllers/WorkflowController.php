@@ -39,8 +39,10 @@ class WorkflowController extends Controller
 
     public function test()
     {
-        $workflow = new Workflow(1);
-
+//       $workflow = new Workflow(1);
+        $workflow = app('yc-workflow', [
+            'processId' => 1
+        ]);
 //        return $workflow->create();
 //        return $workflow->start(22);
 //        return $workflow->complateAndToNextNode(28, [
