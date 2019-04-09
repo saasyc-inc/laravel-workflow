@@ -10,6 +10,9 @@
 - 建立节点关系`process_node_link`
 
 ### 流程使用
+- 默认流程路由
+http://xxx//yiche/workflow/all
+
 - 获取工作流实例
 
 `$workflow = new Workflow($processId);`
