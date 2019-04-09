@@ -57,8 +57,8 @@ CREATE TABLE `process_instance` (
 -- Records of process_instance
 -- ----------------------------
 BEGIN;
-INSERT INTO `process_instance` VALUES (1, 1, '林润审批', 1, 0, 0, NULL, '0000-00-00 00:00:00', '2019-04-03 09:20:02', '2019-04-03 09:20:02');
-INSERT INTO `process_instance` VALUES (2, 1, '林润审批', 1, 0, 0, NULL, '0000-00-00 00:00:00', '2019-04-03 10:48:09', '2019-04-03 10:48:09');
+INSERT INTO `process_instance` VALUES (1, 1, '林润审批', 1, 0, 0, NULL, NULL, '2019-04-03 09:20:02', '2019-04-03 09:20:02');
+INSERT INTO `process_instance` VALUES (2, 1, '林润审批', 1, 0, 0, NULL, NULL, '2019-04-03 10:48:09', '2019-04-03 10:48:09');
 INSERT INTO `process_instance` VALUES (3, 1, '林润审批', 1, 0, 0, NULL, NULL, '2019-04-03 10:48:56', '2019-04-03 10:48:56');
 INSERT INTO `process_instance` VALUES (4, 1, '林润审批', 1, 0, 0, NULL, NULL, '2019-04-03 10:48:56', '2019-04-03 10:48:56');
 INSERT INTO `process_instance` VALUES (5, 1, '林润审批', 1, 0, 0, NULL, NULL, '2019-04-03 10:48:57', '2019-04-03 10:48:57');
