@@ -1,6 +1,8 @@
 # 流程引擎使用V1
 ## 安装
- - php artisan vendor:publish --tag=workflow --force
+- composer require yiche/workflow:dev-master
+- php artisan vendor:publish --tag=workflow --force
+- php artisan yiche:workflow-install
 ## 使用
 ### 建立独立流程
 - 初始化流程线`process`
