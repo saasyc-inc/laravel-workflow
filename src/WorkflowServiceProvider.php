@@ -19,7 +19,7 @@ class WorkflowServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'workflow');
 
         $this->commands([
-            RegionInstall::class
+            WorkflowInstall::class
         ]);
 
         $this->publishes([
