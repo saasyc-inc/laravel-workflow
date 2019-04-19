@@ -14,4 +14,9 @@ use Illuminate\Database\Eloquent\Model;
 class ProcessNodeInstance extends Model
 {
     protected $table = 'process_node_instance';
+
+    public function node()
+    {
+        return $this->belongsTo(ProcessNode::class);
+    }
 }

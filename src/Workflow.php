@@ -96,7 +96,7 @@ class Workflow extends ServiceProvider
             throw new ParameterException('[node_item_id]参数错误');
         }
         if ($nodeInstance->is_completed == 1) {
-            throw new ProcessException('该流程已经已经完成', ProcessException::PROCESS_COMPLATED);
+//            throw new ProcessException('该流程已经已经完成', ProcessException::PROCESS_COMPLATED);
         }
         ProcessNodeInstance::where('id', $nodeInstanceId)->update([
             'status'       => 2,
@@ -112,7 +112,7 @@ class Workflow extends ServiceProvider
             }
             foreach ($nodeInstanceIds as $k => $nodeInstanceId) {
                 if ($nodeInstanceId) {
-                    $res = ProcessNodeInstance::find($nodeInstanceId);
+                    $res = ProcessNodeInstance::with('node')->find($nodeInstanceId);
                     if ($res) {
                         $nextNodes[] = $res;
                     }

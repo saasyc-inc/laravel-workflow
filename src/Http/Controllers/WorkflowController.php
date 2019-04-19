@@ -29,7 +29,6 @@ class WorkflowController extends Controller
             'process_id' => $processId
         ])->get()->toArray();
 
-
         return view('workflow::index', [
             'item_map'       => $itemMap,
             'links'          => $nodeLinkList,
@@ -39,14 +38,14 @@ class WorkflowController extends Controller
 
     public function test()
     {
-//       $workflow = new Workflow(1);
-        $workflow = app('yc-workflow', [
-            'processId' => 1
-        ]);
+//        $workflow = new Workflow(1);
+//        $workflow = app('yc-workflow', [
+//            'processId' => 1
+//        ]);
 //        return $workflow->create();
-//        return $workflow->start(22);
-//        return $workflow->complateAndToNextNode(28, [
-//            'need_home_visit' => 1
+//        return $workflow->start(1);
+//        return $workflow->complateAndToNextNode(4, [
+//            'pass_status' => 2
 //        ]);
 //        return $workflow->complateAndToNextNode(26, [
 //            'need_home_visit' => 1,
