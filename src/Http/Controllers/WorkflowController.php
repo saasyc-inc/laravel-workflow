@@ -22,13 +22,12 @@ class WorkflowController extends Controller
         $itemMap = [];
         foreach ($nodeList as $k => $v) {
             $itemMap[$v['id']]             = $v;
-            $itemMap[$v['id']]['title_id'] = $v['title'] . '[' . $v['id'] . ']';
+            $itemMap[$v['id']]['title_id'] = $v['title'] . '[' . $v['id'] . ']' . '[' . $v['node_id'] . ']';
         }
 
         $nodeLinkList = ProcessNodeLink::where([
             'process_id' => $processId
         ])->get()->toArray();
-
         return view('workflow::index', [
             'item_map'       => $itemMap,
             'links'          => $nodeLinkList,
