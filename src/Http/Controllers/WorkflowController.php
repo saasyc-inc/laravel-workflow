@@ -15,9 +15,18 @@ class WorkflowController extends Controller
     {
         $processId = $request->input('process_id', 1);
 
-        $nodeList = ProcessNode::where([
+        $nodeLinkList = ProcessNodeLink::where([
             'process_id' => $processId
         ])->get()->toArray();
+
+        $nodeIds = array_values(array_unique(array_merge(
+            array_column($nodeLinkList, 'current_id'),
+            array_column($nodeLinkList, 'prev_id'),
+            array_column($nodeLinkList, 'next_id')
+        )));
+
+        $nodeList = ProcessNode::whereIn('node_id', $nodeIds)->get()->toArray();
+
 
         $itemMap = [];
         foreach ($nodeList as $k => $v) {
@@ -25,9 +34,6 @@ class WorkflowController extends Controller
             $itemMap[$v['id']]['title_id'] = $v['title'] . '[' . $v['id'] . ']' . '[' . $v['node_id'] . ']';
         }
 
-        $nodeLinkList = ProcessNodeLink::where([
-            'process_id' => $processId
-        ])->get()->toArray();
         return view('workflow::index', [
             'item_map'       => $itemMap,
             'links'          => $nodeLinkList,

@@ -80,7 +80,14 @@ class Workflow extends ServiceProvider
         foreach ($nodes as $k => $v) {
             $nodeInstanceId = $this->run($processInstanceId, $v, []);
             if ($nodeInstanceId) {
-                $nextNodes[] = ProcessNodeInstance::with('node')->find($nodeInstanceId);
+                $nodeInstanceObj = ProcessNodeInstance::with('node')->find($nodeInstanceId);
+                if (!empty($nodeInstanceObj)) {
+                    $nodeInstanceObj->process_id = $this->processId;
+                    if (!empty($nodeInstanceObj->node)) {
+                        $nodeInstanceObj->node->process_id = $this->processId;
+                    }
+                }
+                $nextNodes[] = $nodeInstanceObj;
             }
         }
         return $nextNodes;
@@ -114,6 +121,10 @@ class Workflow extends ServiceProvider
                 if ($nodeInstanceId) {
                     $res = ProcessNodeInstance::with('node')->find($nodeInstanceId);
                     if ($res) {
+                        $res->process_id = $this->processId;
+                        if (!empty($res->node)) {
+                            $res->node->process_id = $this->processId;
+                        }
                         $nextNodes[] = $res;
                     }
                 }
