@@ -31,9 +31,9 @@
     <g/>
 </svg>
 </body>
-<script src="{{asset('vendor/yiche/workflow/js/jquery-latest.js')}}"></script>
-<script src="{{asset('vendor/yiche/workflow/js/d3.v3.min.js')}}"></script>
-<script src="{{asset('vendor/yiche/workflow/js/dagre-d3.min.js')}}"></script>
+<script src="/vendor/yiche/workflow/js/jquery-latest.js"></script>
+<script src="/vendor/yiche/workflow/js/d3.v3.min.js"></script>
+<script src="/vendor/yiche/workflow/js/dagre-d3.min.js"></script>
 <script>
     // Create a new directed graph
     var g = new dagreD3.graphlib.Graph().setGraph({});
@@ -47,7 +47,13 @@
 
     // Set up the edges
     <?php foreach($links as $k=>$v) {?>
-    g.setEdge("<?php echo $item_map[$v['current_id']]['title_id'] ?>", "<?php echo $item_map[$v['next_id']]['title_id']?>", {label: "<?php echo $show_condition && $item_map[$v['current_id']]['node_type'] == 'gateway' && $item_map[$v['next_id']]['condition'] ? substr(str_replace('"', '\\"', $item_map[$v['next_id']]['condition']), 0, 30) . (strlen(str_replace('"', '\\"', $item_map[$v['next_id']]['condition'])) > 30 ? '...' : '') : ''?>"});
+    g.setEdge("<?php echo $item_map[$v['current_id']]['title_id']?>",
+        "<?php echo $item_map[$v['next_id']]['title_id']?>",
+        {label: "<?php echo $show_condition && $item_map[$v['current_id']]['node_type'] == 'gateway' && $item_map[$v['next_id']]['condition'] ? substr(str_replace('"', '\\"', $item_map[$v['next_id']]['condition']), 0, 30) . (strlen(str_replace('"', '\\"', $item_map[$v['next_id']]['condition'])) > 30 ? '...' : '') : ''?>",
+            style: "stroke: #0fb2cc; fill: none;",
+            arrowheadStyle: "fill: #0fb2cc;stroke: #0fb2cc;",
+            arrowhead: 'vee'
+        });
     <?php }?>
 
     // Set some general styles

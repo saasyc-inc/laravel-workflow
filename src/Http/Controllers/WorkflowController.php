@@ -14,6 +14,7 @@ class WorkflowController extends Controller
     public function index(Request $request)
     {
         $processId = $request->input('process_id', 1);
+        $show = $request->input('show', 1);
 
         $nodeLinkList = ProcessNodeLink::where([
             'process_id' => $processId
@@ -37,7 +38,7 @@ class WorkflowController extends Controller
         return view('workflow::index', [
             'item_map'       => $itemMap,
             'links'          => $nodeLinkList,
-            'show_condition' => true
+            'show_condition' => ($show==1) ? true:false
         ]);
     }
 
