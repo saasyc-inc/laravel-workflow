@@ -110,6 +110,30 @@ class Workflow extends ServiceProvider
             'is_completed' => 1,
             'complete_at'  => date('Y-m-d H:i:s', time()),
         ]);
+        $nextNodes = $this->toNextNode($nodeInstanceId,$params);
+        return $nextNodes;
+    }
+
+    // complateAndToNextNode 的重写。修复complete
+    public function completeAndToNextNode($nodeInstanceId, $params = [])
+    {
+        $this->complateAndToNextNode($nodeInstanceId,$params);
+    }
+
+    /**
+     * 直接到达下个流程
+     * @param $nodeInstanceId
+     * @param array $params
+     * @return array
+     * @throws ParameterException
+     * @throws ProcessException
+     */
+    public function toNextNode($nodeInstanceId, $params = [])
+    {
+        $nodeInstance = ProcessNodeInstance::find($nodeInstanceId);
+        if (empty($nodeInstance)) {
+            throw new ParameterException('[node_item_id]参数错误');
+        }
         $nodes     = $this->nextNodes($nodeInstance->process_instance_id, $nodeInstance->node_id);
         $nextNodes = [];
         foreach ($nodes as $k => $v) {
