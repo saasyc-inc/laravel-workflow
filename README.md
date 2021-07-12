@@ -80,4 +80,18 @@ $res = $workflow->complateAndToNextNode($nodeInstanceId, ['need_home_visit' => 1
     }
 ]
 ```
-- 完成任务
+
+# v1.9
+> 这个是个大版本，与之前的版本不兼容
+
+- 修改节点条件到link表中添加，优化多条件同个节点
+- 新增锁操作，防止并发出现问题
+- 新增直接到达下个节点
+```
+$service->toNextNode($nodeInstanceId,$params);
+```
+
+- 新增回退上个节点
+```
+$preNode = $service->toProNode(6);
+```

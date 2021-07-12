@@ -25,7 +25,6 @@ class WorkflowController extends Controller
             array_column($nodeLinkList, 'prev_id'),
             array_column($nodeLinkList, 'next_id')
         )));
-
         $nodeList = ProcessNode::whereIn('node_id', $nodeIds)->get()->toArray();
 
 
@@ -34,7 +33,6 @@ class WorkflowController extends Controller
             $itemMap[$v['id']]             = $v;
             $itemMap[$v['id']]['title_id'] = $v['title'] . '[' . $v['id'] . ']' . '[' . $v['node_id'] . ']';
         }
-
         return view('workflow::index', [
             'item_map'       => $itemMap,
             'links'          => $nodeLinkList,

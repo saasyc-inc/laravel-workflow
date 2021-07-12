@@ -49,7 +49,7 @@
     <?php foreach($links as $k=>$v) {?>
     g.setEdge("<?php echo $item_map[$v['current_id']]['title_id']?>",
         "<?php echo $item_map[$v['next_id']]['title_id']?>",
-        {label: "<?php echo $show_condition && $item_map[$v['current_id']]['node_type'] == 'gateway' && $item_map[$v['next_id']]['condition'] ? substr(str_replace('"', '\\"', $item_map[$v['next_id']]['condition']), 0, 30) . (strlen(str_replace('"', '\\"', $item_map[$v['next_id']]['condition'])) > 30 ? '...' : '') : ''?>",
+        {label: "<?php echo $show_condition && $item_map[$v['current_id']]['node_type'] == 'gateway' ? substr(str_replace('"', '\\"', $v['condition']), 0, 30) . (strlen(str_replace('"', '\\"',$v['condition'])) > 30 ? '...' : '') : ''?>",
             style: "stroke: #0fb2cc; fill: none;",
             arrowheadStyle: "fill: #0fb2cc;stroke: #0fb2cc;",
             arrowhead: 'vee'

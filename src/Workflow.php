@@ -18,7 +18,7 @@ class Workflow extends ServiceProvider
      * @var int
      */
     private $processId = 0;
-    private $process = null;
+    private $process   = null;
 
     public function __construct($processId)
     {
@@ -94,30 +94,91 @@ class Workflow extends ServiceProvider
     }
 
     /**
-     * 完成当前节点，并且走向下个节点
+     * 完成该节点
+     * @param $nodeInstanceId
+     * @param array $params
+     * @return array
+     * @throws ParameterException
+     * @throws ProcessException
      */
-    public function complateAndToNextNode($nodeInstanceId, $params = [])
+    public function completeNode($nodeInstanceId, $params = [])
     {
-        $nodeInstance = ProcessNodeInstance::find($nodeInstanceId);
-        if (empty($nodeInstance)) {
-            throw new ParameterException('[node_item_id]参数错误');
+        try {
+            DB::beginTransaction();
+            $nodeInstance = ProcessNodeInstance::sharedLock()->find($nodeInstanceId);
+            if (empty($nodeInstance)) {
+                throw new ParameterException('[node_item_id]参数错误');
+            }
+            if ($nodeInstance->is_completed == 1) {
+                throw new ProcessException('该流程已经已经完成', ProcessException::PROCESS_COMPLATED);
+            }
+            ProcessNodeInstance::where('id', $nodeInstanceId)->update([
+                'status'       => 2,
+                'is_completed' => 1,
+                'complete_at'  => date('Y-m-d H:i:s', time()),
+            ]);
+            DB::commit();
+            return $nextNodes;
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            throw new ProcessException($exception->getMessage());
         }
-        if ($nodeInstance->is_completed == 1) {
-            throw new ProcessException('该流程已经已经完成', ProcessException::PROCESS_COMPLATED);
-        }
-        ProcessNodeInstance::where('id', $nodeInstanceId)->update([
-            'status'       => 2,
-            'is_completed' => 1,
-            'complete_at'  => date('Y-m-d H:i:s', time()),
-        ]);
-        $nextNodes = $this->toNextNode($nodeInstanceId,$params);
-        return $nextNodes;
     }
 
-    // complateAndToNextNode 的重写。修复complete
+    /**
+     * 完成该节点，并进入下一个节点
+     * @param $nodeInstanceId
+     * @param array $params
+     * @return array
+     * @throws ParameterException
+     * @throws ProcessException
+     */
     public function completeAndToNextNode($nodeInstanceId, $params = [])
     {
-        $this->complateAndToNextNode($nodeInstanceId,$params);
+        try {
+            DB::beginTransaction();
+            // 使用锁，之前发现连续点击出现错误，这个不会影响啥性能，因为自己的数据只能自己操作
+            $nodeInstance = ProcessNodeInstance::sharedLock()->find($nodeInstanceId);
+            if (empty($nodeInstance)) {
+                throw new ParameterException('[node_item_id]参数错误');
+            }
+            if ($nodeInstance->is_completed == 1) {
+                throw new ProcessException('该流程已经已经完成', ProcessException::PROCESS_COMPLATED);
+            }
+            ProcessNodeInstance::where('id', $nodeInstanceId)->update([
+                'status'       => 2,
+                'is_completed' => 1,
+                'complete_at'  => date('Y-m-d H:i:s', time()),
+            ]);
+            $nextNodes = $this->toNextNode($nodeInstanceId, $params);
+            DB::commit();
+            return $nextNodes;
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            throw new ProcessException($exception->getMessage());
+        }
+    }
+
+    public function toProNode($nodeInstanceId)
+    {
+        $nodeInstance               = ProcessNodeInstance::find($nodeInstanceId);
+        $nodeInstance->status       = 4;
+        $nodeInstance->is_completed = 1;
+        $nodeInstance->save();
+
+        $preNode = ProcessNodeInstance::where('node_id', $nodeInstance->pre_node_id ?? -1)->first();
+        if (empty($preNode)) {
+            return null;
+        }
+        $preNodeModel                      = new ProcessNodeInstance();
+        $preNodeModel->process_id          = $preNode->id;
+        $preNodeModel->process_instance_id = $preNode->process_instance_id;
+        $preNodeModel->node_id             = $preNode->node_id;
+        $preNodeModel->pre_node_id         = $preNode->pre_node_id;
+        $preNodeModel->title               = $preNode->title;
+        $preNodeModel->save();
+        return $preNodeModel;
+
     }
 
     /**
@@ -137,7 +198,7 @@ class Workflow extends ServiceProvider
         $nodes     = $this->nextNodes($nodeInstance->process_instance_id, $nodeInstance->node_id);
         $nextNodes = [];
         foreach ($nodes as $k => $v) {
-            $nodeInstanceIds = $this->run($nodeInstance->process_instance_id, $v, $params);
+            $nodeInstanceIds = $this->run($nodeInstance->process_instance_id, $v, $params, $nodeInstance->node_id);
             if (!is_array($nodeInstanceIds)) {
                 $nodeInstanceIds = [$nodeInstanceIds];
             }
@@ -181,7 +242,8 @@ class Workflow extends ServiceProvider
                 'current_id' => $nodeId,
             ];
         }
-        $links    = ProcessNodeLink::where($where)->with('next_node')->get()->toArray();
+        $links = ProcessNodeLink::where($where)->with('next_node')->get()->toArray();
+        return $links;
         $linksMap = [];
         foreach ($links as $k => $v) {
             $linksMap[$v['next_id']] = $v['next_node'];
@@ -223,22 +285,24 @@ class Workflow extends ServiceProvider
      * @param $processInstanceId
      * @param $node
      * @param $data
+     * @param $preNodeId 上个节点ID
      * @return int
      */
-    private function run($processInstanceId, $node, $data)
+    private function run($processInstanceId, $nodeLink, $data, $preNodeId = 0)
     {
-        switch ($node['node_type']) {
+        $nodeType = $nodeLink['next_node']['node_type'] ?? '';
+        switch ($nodeType) {
             case 'event':              //事件：包括空开始事件、空结束事件、终止结束事件
-                $this->_runEvent($processInstanceId, $node, $data);
+                $this->_runEvent($processInstanceId, $nodeLink, $data);
                 break;
             case 'gateway':             //网关：包括唯一网关、并行网关、包含网关
-                return $this->_runGateway($processInstanceId, $node, $data);
+                return $this->_runGateway($processInstanceId, $nodeLink, $data);
                 break;
             case 'task':                //任务，包括人工任务、服务任务、脚本任务、手工任务、接收任务
-                return $this->_runTask($processInstanceId, $node, $data);
+                return $this->_runTask($processInstanceId, $nodeLink, $data, $preNodeId);
                 break;
             case 'end' :
-                $this->_runEnd($processInstanceId, $node, $data);
+                $this->_runEnd($processInstanceId, $nodeLink, $data);
             default:
                 break;
         }
@@ -253,12 +317,14 @@ class Workflow extends ServiceProvider
      * @param array $data
      * @return mixed
      */
-    private function _runTask($processInstanceId, $node, $data = [])
+    private function _runTask($processInstanceId, $nodeLink, $data = [], $proNodeId = 0)
     {
+        $node                      = $nodeLink['next_node'];
         $param                     = [
             'process_id'          => $node['process_id'],
             'process_instance_id' => $processInstanceId,
             'node_id'             => $node['id'],
+            'pre_node_id'         => $proNodeId,
             'title'               => $node['title'],
         ];
         $nodeInstanceId            = ProcessNodeInstance::insertGetId($param);
@@ -267,13 +333,14 @@ class Workflow extends ServiceProvider
     }
 
 
-    private function _runGateway($processInstanceId, $node, $data = [])
+    private function _runGateway($processInstanceId, $nodeLink, $data = [])
     {
-        $res  = [];
-        $next = $this->nextNodes($processInstanceId, $node['id']);
+        $res    = [];
+        $nodeId = $nodeLink['next_node']['id'];
+        $next   = $this->nextNodes($processInstanceId, $nodeId);
         foreach ($next as $k => $v) {
             if ($this->_matchCondition($v, $data)) {
-                $res[] = $this->run($processInstanceId, $v, $data);
+                $res[] = $this->run($processInstanceId, $v, $data, $nodeLink['current_id']);
             }
         }
         return $res;
