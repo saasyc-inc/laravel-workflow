@@ -8,6 +8,7 @@ use Yiche\Workflow\Exception\ParameterException;
 use Yiche\Workflow\Exception\ProcessException;
 use Yiche\Workflow\Models\Process;
 use Yiche\Workflow\Models\ProcessInstance;
+use Yiche\Workflow\Models\ProcessNode;
 use Yiche\Workflow\Models\ProcessNodeInstance;
 use Yiche\Workflow\Models\ProcessNodeLink;
 
@@ -179,6 +180,36 @@ class Workflow extends ServiceProvider
         $preNodeModel->save();
         return $preNodeModel;
 
+    }
+
+    /**
+     *
+     * @param $nodeInstanceId
+     * @param $toNodeTag
+     * @return mixed
+     * @throws ParameterException
+     */
+    public function toNode($nodeInstanceId, $toNodeTag)
+    {
+        $node = ProcessNode::where([
+            'process_id' => $this->processId,
+            'node_id'    => $toNodeTag,
+        ])->first();
+        if (empty($node)) {
+            throw new ParameterException('[node_id]节点不存在');
+        }
+        $currentNodeInstance = ProcessNodeInstance::where('id', $nodeInstanceId)->first();
+        if (empty($currentNodeInstance)) {
+            throw new ParameterException('[nodeInstanceId]节点错误');
+        }
+        $toNodeInstance                      = new ProcessNodeInstance();
+        $toNodeInstance->process_id          = $this->processId;
+        $toNodeInstance->process_instance_id = $currentNodeInstance->process_instance_id;
+        $toNodeInstance->node_id             = $node->id;
+        $toNodeInstance->pre_node_id         = $currentNodeInstance->node_id;
+        $toNodeInstance->title               = $node->title;
+        $toNodeInstance->save();
+        return $toNodeInstance;
     }
 
     /**

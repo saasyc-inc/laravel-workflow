@@ -11,7 +11,7 @@
 
 ### 流程使用
 - 默认流程路由
-http://xxx//yiche/workflow/all
+http://xxx//yiche/workflow/all 
 
 - 获取工作流实例
 
@@ -94,4 +94,11 @@ $service->toNextNode($nodeInstanceId,$params);
 - 新增回退上个节点
 ```
 $preNode = $service->toProNode(6);
+```
+
+- 新增去任意节点，无需配置流程
+```
+// 直接从当前的节点，跳转到指定的节点
+$nextList = $service->toNode(4, 'yhzxcx');
+dd($nextList);
 ```
