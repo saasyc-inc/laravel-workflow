@@ -5,6 +5,7 @@ namespace Yiche\Workflow\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yiche\Workflow\Models\Process;
 use Yiche\Workflow\Models\ProcessNode;
 use Yiche\Workflow\Models\ProcessNodeLink;
 use Yiche\Workflow\Workflow;
@@ -18,7 +19,7 @@ class WorkflowController extends Controller
 
         $nodeLinkList = ProcessNodeLink::where([
             'process_id' => $processId
-        ])->get()->toArray();
+        ])->orderBy('rank','asc')->get()->toArray();
 
         $nodeIds = array_values(array_unique(array_merge(
             array_column($nodeLinkList, 'current_id'),
@@ -27,6 +28,7 @@ class WorkflowController extends Controller
         )));
         $nodeList = ProcessNode::whereIn('node_id', $nodeIds)->get()->toArray();
 
+        $process = Process::find($processId);
 
         $itemMap = [];
         foreach ($nodeList as $k => $v) {
@@ -36,7 +38,8 @@ class WorkflowController extends Controller
         return view('workflow::index', [
             'item_map'       => $itemMap,
             'links'          => $nodeLinkList,
-            'show_condition' => ($show==1) ? true:false
+            'show_condition' => ($show==1) ? true:false,
+            'remark' => $process->remark??'',
         ]);
     }
 

@@ -27,6 +27,7 @@
     </style>
 </head>
 <body>
+<p style="position: absolute;top: 10px;border: 1px solid dimgrey;line-height: 30px;color: red">{{$remark}}</p>
 <svg width=1900 height=600>
     <g/>
 </svg>
